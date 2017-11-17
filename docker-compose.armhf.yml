@@ -1,12 +1,23 @@
-version: "3"
+version: "3.4"
 services:
 
   # Core API services are pinned, HA is provided for functions.
+  gwnginx:
+    image: riggerthegeek/gwnginx:latest
+    ports:
+      - 8080:8080
+    depends_on:
+      - gateway
+    networks:
+      - functions
+    deploy:
+      replicas: 3
+    secrets:
+      - openfaas_htpasswd
+
   gateway:
     volumes:
         - "/var/run/docker.sock:/var/run/docker.sock"
-    ports:
-      - 8080:8080
     image: functions/gateway:0.6.9-armhf
     networks:
       - functions
@@ -14,7 +25,7 @@ services:
       read_timeout: 10    # set both here, and on your functions
       write_timeout: 10   # set both here, and on your functions
     deploy:
-      mode: global
+      replicas: 3
       placement:
         constraints: [node.role == manager]
 
@@ -58,3 +69,7 @@ services:
 networks:
   functions:
     driver: overlay
+
+secrets:
+  openfaas_htpasswd:
+    external: true
