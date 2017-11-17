@@ -3,7 +3,7 @@ services:
 
   # Core API services are pinned, HA is provided for functions.
   gwnginx:
-    image: riggerthegeek/gwnginx:latest
+    image: riggerthegeek/gwnginx:latest-armhf
     ports:
       - 8080:8080
     depends_on:
@@ -12,6 +12,14 @@ services:
       - functions
     deploy:
       replicas: 3
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 30s
     secrets:
       - openfaas_htpasswd
 
@@ -26,6 +34,14 @@ services:
       write_timeout: 10   # set both here, and on your functions
     deploy:
       replicas: 3
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 30s
       placement:
         constraints: [node.role == manager]
 
@@ -45,6 +61,15 @@ services:
     networks:
       - functions
     deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 30s
       placement:
         constraints: [node.role == manager]
 
@@ -61,10 +86,37 @@ services:
     ports:
       - 9093:9093
     deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 30s
       placement:
         constraints: [node.role == manager]
 
   # Functions go here
+  distance-finder:
+    image: riggerthegeek/distance-finder:latest-armhf
+    labels:
+      function: "true"
+    depends_on:
+      - gateway
+    networks:
+      - functions
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 30s
 
 networks:
   functions:
