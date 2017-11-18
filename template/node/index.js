@@ -10,29 +10,25 @@ const getStdin = require('get-stdin');
 /* Files */
 const handler = require('./function/handler');
 
-// const isArray = a => (!!a) && (Array.isArray(a));
-//
-// const isObject = a => (!!a) && a.constructor === Object;
+const isArray = a => (!!a) && (Array.isArray(a));
 
-getStdin().then(val => {
-  handler(val, (err, res) => {
-    if (err) {
-      return console.error(err);
-    }
-    if(isArray(res) || isObject(res)) {
-      console.log(JSON.stringify(res));
-    } else {
-      process.stdout.write(res);
-    }
+const isObject = a => (!!a) && a.constructor === Object;
+
+getStdin()
+  .then(input => handler(input)
+    .then((result) => {
+      if (isArray(result) || isObject(result)) {
+        console.log(JSON.stringify(result));
+        return;
+      }
+
+      process.stdout.write(result);
+    })
+    .catch(err => {
+      console.error(err);
+    })
+  )
+  /* STDIN error */
+  .catch(err => {
+    console.error(err.stack);
   });
-}).catch(e => {
-  console.error(e.stack);
-});
-
-let isArray = (a) => {
-  return (!!a) && (a.constructor === Array);
-};
-
-let isObject = (a) => {
-  return (!!a) && (a.constructor === Object);
-};
