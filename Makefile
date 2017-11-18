@@ -56,9 +56,13 @@ gateway:
 password:
 	htpasswd -B -c openfaas.htpasswd ${WEB_USER}
 	cat openfaas.htpasswd
+.PHONY: password
+
+password-update:
+	make password
+
 	make destroy
 	docker secret rm ${PASSWORD_SECRET} || true
 	docker secret create --label openfaas ${PASSWORD_SECRET} openfaas.htpasswd
-	rm openfaas.htpasswd
 	make deploy
-.PHONY: password
+.PHONY: password-update
