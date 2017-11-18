@@ -11,13 +11,13 @@ WORKDIR /root/
 
 COPY package.json   .
 
-RUN npm i
+RUN npm install --production
 COPY index.js       .
 COPY function       function
 WORKDIR /root/function
 
 ENV NPM_CONFIG_LOGLEVEL warn
-RUN npm i || :
+RUN npm install --production || :
 WORKDIR /root/
 
 ENV cgi_headers="true"
