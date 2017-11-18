@@ -2,7 +2,9 @@ ARCH := $(shell dpkg --print-architecture || true)
 ARCH_DOCKER ?= ""
 ARCH_TAG ?= ""
 DOCKER_USER ?= "riggerthegeek"
+PASSWORD_SECRET ?= "openfaas_htpasswd"
 STACK ?= func
+WEB_USER ?= "faas"
 
 ifeq ($(ARCH), armhf)
 ARCH_DOCKER := ".armhf"
@@ -50,3 +52,13 @@ gateway:
 	docker build --file ./gateway/Dockerfile${ARCH_DOCKER} --tag ${DOCKER_USER}/gwnginx:latest${ARCH_TAG} ./gateway
 	$(call push,gwnginx)
 .PHONY: gateway
+
+password:
+	htpasswd -B -c openfaas.htpasswd ${WEB_USER}
+	cat openfaas.htpasswd
+	make destroy
+	docker secret rm ${PASSWORD_SECRET} || true
+	docker secret create --label openfaas ${PASSWORD_SECRET} openfaas.htpasswd
+	rm openfaas.htpasswd
+	make deploy
+.PHONY: password
