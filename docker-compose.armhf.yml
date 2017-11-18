@@ -25,7 +25,7 @@ services:
 
   gateway:
     volumes:
-        - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/var/run/docker.sock:/var/run/docker.sock"
     image: functions/gateway:0.6.9-armhf
     networks:
       - functions
