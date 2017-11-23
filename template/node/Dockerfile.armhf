@@ -1,6 +1,7 @@
-FROM arm32v6/alpine:3.6
+FROM resin/raspberry-pi-alpine-node:6.11
 
-RUN apk add --no-cache nodejs nodejs-npm ca-certificates
+RUN [ "cross-build-start" ]
+
 RUN apk --no-cache add curl \
     && echo "Pulling watchdog binary from Github." \
     && curl -sSL https://github.com/openfaas/faas/releases/download/0.6.9/fwatchdog-armhf > /usr/bin/fwatchdog \
@@ -25,5 +26,7 @@ ENV cgi_headers="true"
 ENV fprocess="node index.js"
 
 HEALTHCHECK --interval=1s CMD [ -e /tmp/.lock ] || exit 1
+
+RUN [ "cross-build-end" ]
 
 CMD ["fwatchdog"]
