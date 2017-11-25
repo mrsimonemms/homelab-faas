@@ -1,6 +1,4 @@
-ARCH := $(shell dpkg --print-architecture || true)
-ARCH_DOCKER ?= ""
-ARCH_TAG ?= ""
+ARCH ?= ""
 DOCKER_USER ?= "riggerthegeek"
 PASSWORD_SECRET ?= "openfaas_htpasswd"
 STACK ?= func
@@ -61,8 +59,7 @@ password:
 password-update:
 	make password
 
-	make destroy
+	make destroy || true
 	docker secret rm ${PASSWORD_SECRET} || true
 	docker secret create --label openfaas ${PASSWORD_SECRET} openfaas.htpasswd
-	make deploy
 .PHONY: password-update
