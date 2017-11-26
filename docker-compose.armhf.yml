@@ -60,6 +60,11 @@ services:
       no_proxy: "gateway"
     networks:
       - functions
+    configs:
+      - source: prometheus-alerts
+        target: /etc/prometheus/alert.rules
+      - source: prometheus
+        target: /etc/prometheus/prometheus.yml
     deploy:
       replicas: 1
       restart_policy:
@@ -85,6 +90,9 @@ services:
       - functions
     ports:
       - 9093:9093
+    configs:
+      - source: prometheus-alertmanager
+        target: /alertmanager.yml
     deploy:
       replicas: 1
       restart_policy:
@@ -117,6 +125,14 @@ services:
       update_config:
         parallelism: 1
         delay: 10s
+
+configs:
+  prometheus-alerts:
+    file: ./prometheus/alert.rules
+  prometheus-alertmanager:
+    file: ./prometheus/alertmanager.yml
+  prometheus:
+    file: ./prometheus/prometheus.yml
 
 networks:
   functions:

@@ -11,7 +11,7 @@ services:
     networks:
       - functions
     deploy:
-      replicas: 3
+      replicas: 1
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -33,7 +33,7 @@ services:
       read_timeout: 10    # set both here, and on your functions
       write_timeout: 10   # set both here, and on your functions
     deploy:
-      replicas: 3
+      replicas: 1
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -47,9 +47,6 @@ services:
 
   prometheus:
     image: alexellis2/prometheus:1.5.2
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./prometheus/alert.rules:/etc/prometheus/alert.rules
     command: "-config.file=/etc/prometheus/prometheus.yml -storage.local.path=/prometheus -storage.local.memory-chunks=10000 --alertmanager.url=http://alertmanager:9093"
     ports:
       - 9090:9090
@@ -60,6 +57,11 @@ services:
       no_proxy: "gateway"
     networks:
       - functions
+    configs:
+      - source: prometheus-alerts
+        target: /etc/prometheus/alert.rules
+      - source: prometheus
+        target: /etc/prometheus/prometheus.yml
     deploy:
       replicas: 1
       restart_policy:
@@ -77,14 +79,15 @@ services:
     image: alexellis2/alertmanager:0.5.1
     environment:
       no_proxy: "gateway"
-    volumes:
-      - ./prometheus/alertmanager.yml:/alertmanager.yml
     command:
       - '-config.file=/alertmanager.yml'
     networks:
       - functions
     ports:
       - 9093:9093
+    configs:
+      - source: prometheus-alertmanager
+        target: /alertmanager.yml
     deploy:
       replicas: 1
       restart_policy:
@@ -100,7 +103,7 @@ services:
 
   # Functions go here
   distance-finder:
-    image: riggerthegeek/function-distance-finder:latest-armhf
+    image: riggerthegeek/function-distance-finder:latest
     labels:
       function: "true"
     depends_on:
@@ -108,7 +111,7 @@ services:
     networks:
       - functions
     deploy:
-      replicas: 2
+      replicas: 1
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -117,6 +120,14 @@ services:
       update_config:
         parallelism: 1
         delay: 10s
+
+configs:
+  prometheus-alerts:
+    file: ./prometheus/alert.rules
+  prometheus-alertmanager:
+    file: ./prometheus/alertmanager.yml
+  prometheus:
+    file: ./prometheus/prometheus.yml
 
 networks:
   functions:
