@@ -1,4 +1,4 @@
-ARCH ?= "armhf"
+ARCH := $(shell dpkg --print-architecture || true)
 DOCKER_USER ?= "riggerthegeek"
 PASSWORD_SECRET ?= "openfaas_htpasswd"
 STACK ?= "func"
@@ -38,5 +38,4 @@ password-update:
 .PHONY: password-update
 
 update:
-	docker 
 .PHONY: update
