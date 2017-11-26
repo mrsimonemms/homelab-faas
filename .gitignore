@@ -5,4 +5,4 @@ Thumbs.db
 .idea
 /build
 node_modules
-*.htpasswd
+htpasswd

@@ -3,7 +3,7 @@ services:
 
   # Core API services are pinned, HA is provided for functions.
   gwnginx:
-    image: riggerthegeek/faas-password-gateway:0.1-armhf
+    image: riggerthegeek/faas-password-gateway:0.1
     ports:
       - 8080:8080
     depends_on:
@@ -26,7 +26,7 @@ services:
   gateway:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-    image: functions/gateway:0.6.9-armhf
+    image: functions/gateway:0.6.9
     networks:
       - functions
     environment:
@@ -46,7 +46,7 @@ services:
         constraints: [node.role == manager]
 
   prometheus:
-    image: alexellis2/prometheus-armhf:1.5.2
+    image: alexellis2/prometheus:1.5.2
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./prometheus/alert.rules:/etc/prometheus/alert.rules
@@ -74,7 +74,7 @@ services:
         constraints: [node.role == manager]
 
   alertmanager:
-    image: alexellis2/alertmanager-armhf:0.5.1
+    image: alexellis2/alertmanager:0.5.1
     environment:
       no_proxy: "gateway"
     volumes:
