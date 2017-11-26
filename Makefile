@@ -8,7 +8,7 @@ WEB_PASS ?= ""
 ARCH_SUFFIX = ""
 COMPOSE_FILE = "docker-compose"
 ifeq ($(ARCH), armhf)
-COMPOSE_FILE += ".${ARCH}"
+COMPOSE_FILE = "docker-compose.${ARCH}"
 ARCH_SUFFIX = "-armhf"
 endif
 
