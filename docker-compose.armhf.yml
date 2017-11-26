@@ -45,66 +45,66 @@ services:
       placement:
         constraints: [node.role == manager]
 
-  prometheus:
-    image: alexellis2/prometheus-armhf:1.5.2
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./prometheus/alert.rules:/etc/prometheus/alert.rules
-    command: "-config.file=/etc/prometheus/prometheus.yml -storage.local.path=/prometheus -storage.local.memory-chunks=10000 --alertmanager.url=http://alertmanager:9093"
-    ports:
-      - 9090:9090
-    depends_on:
-      - gateway
-      - alertmanager
-    environment:
-      no_proxy: "gateway"
-    networks:
-      - functions
-    configs:
-      - source: prometheus-alerts
-        target: /etc/prometheus/alert.rules
-      - source: prometheus
-        target: /etc/prometheus/prometheus.yml
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-        delay: 10s
-        max_attempts: 3
-        window: 120s
-      update_config:
-        parallelism: 1
-        delay: 10s
-      placement:
-        constraints: [node.role == manager]
+#  prometheus:
+#    image: alexellis2/prometheus-armhf:1.5.2
+#    volumes:
+#      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+#      - ./prometheus/alert.rules:/etc/prometheus/alert.rules
+#    command: "-config.file=/etc/prometheus/prometheus.yml -storage.local.path=/prometheus -storage.local.memory-chunks=10000 --alertmanager.url=http://alertmanager:9093"
+#    ports:
+#      - 9090:9090
+#    depends_on:
+#      - gateway
+#      - alertmanager
+#    environment:
+#      no_proxy: "gateway"
+#    networks:
+#      - functions
+#    configs:
+#      - source: prometheus-alerts
+#        target: /etc/prometheus/alert.rules
+#      - source: prometheus
+#        target: /etc/prometheus/prometheus.yml
+#    deploy:
+#      replicas: 1
+#      restart_policy:
+#        condition: on-failure
+#        delay: 10s
+#        max_attempts: 3
+#        window: 120s
+#      update_config:
+#        parallelism: 1
+#        delay: 10s
+#      placement:
+#        constraints: [node.role == manager]
 
-  alertmanager:
-    image: alexellis2/alertmanager-armhf:0.5.1
-    environment:
-      no_proxy: "gateway"
-    volumes:
-      - ./prometheus/alertmanager.yml:/alertmanager.yml
-    command:
-      - '-config.file=/alertmanager.yml'
-    networks:
-      - functions
-    ports:
-      - 9093:9093
-    configs:
-      - source: prometheus-alertmanager
-        target: /alertmanager.yml
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-        delay: 10s
-        max_attempts: 3
-        window: 120s
-      update_config:
-        parallelism: 1
-        delay: 10s
-      placement:
-        constraints: [node.role == manager]
+#  alertmanager:
+#    image: alexellis2/alertmanager-armhf:0.5.1
+#    environment:
+#      no_proxy: "gateway"
+#    volumes:
+#      - ./prometheus/alertmanager.yml:/alertmanager.yml
+#    command:
+#      - '-config.file=/alertmanager.yml'
+#    networks:
+#      - functions
+#    ports:
+#      - 9093:9093
+#    configs:
+#      - source: prometheus-alertmanager
+#        target: /alertmanager.yml
+#    deploy:
+#      replicas: 1
+#      restart_policy:
+#        condition: on-failure
+#        delay: 10s
+#        max_attempts: 3
+#        window: 120s
+#      update_config:
+#        parallelism: 1
+#        delay: 10s
+#      placement:
+#        constraints: [node.role == manager]
 
   # Functions go here
   distance-finder:
