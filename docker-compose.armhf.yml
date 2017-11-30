@@ -42,8 +42,6 @@ services:
       update_config:
         parallelism: 1
         delay: 10s
-      placement:
-        constraints: [node.role == manager]
 
 #  prometheus:
 #    image: alexellis2/prometheus-armhf:1.5.2
