@@ -106,7 +106,7 @@ services:
 
   # Functions go here
   distance-finder:
-    image: riggerthegeek/function-distance-finder:latest-armhf
+    image: riggerthegeek/function-distance-finder:latest
     labels:
       function: "true"
     depends_on:
