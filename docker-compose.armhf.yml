@@ -3,7 +3,7 @@ services:
 
   # Core API services are pinned, HA is provided for functions.
   gwnginx:
-    image: riggerthegeek/faas-password-gateway:0.1-armhf
+    image: riggerthegeek/faas-password-gateway:latest
     ports:
       - 8080:8080
     depends_on:
