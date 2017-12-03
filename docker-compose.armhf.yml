@@ -11,7 +11,7 @@ services:
     networks:
       - functions
     deploy:
-      replicas: 3
+      mode: global
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -20,6 +20,8 @@ services:
       update_config:
         parallelism: 1
         delay: 10s
+      placement:
+        constraints: [node.role == manager]
     secrets:
       - openfaas_htpasswd
 
@@ -33,7 +35,7 @@ services:
       read_timeout: 10    # set both here, and on your functions
       write_timeout: 10   # set both here, and on your functions
     deploy:
-      replicas: 3
+      mode: global
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -42,6 +44,8 @@ services:
       update_config:
         parallelism: 1
         delay: 10s
+      placement:
+        constraints: [node.role == manager]
 
 #  prometheus:
 #    image: alexellis2/prometheus-armhf:1.5.2
