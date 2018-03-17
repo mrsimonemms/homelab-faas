@@ -34,7 +34,7 @@ password-update:
 
 	make destroy || true
 	docker secret rm openfaas_htpasswd || true
-	docker secret create --label openfaas openfaas_htpasswd htpasswd
+	docker secret create openfaas_htpasswd htpasswd
 .PHONY: password-update
 
 update:
