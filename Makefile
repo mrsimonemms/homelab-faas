@@ -37,5 +37,9 @@ password-update:
 	docker secret create openfaas_htpasswd htpasswd
 .PHONY: password-update
 
+secret:
+	echo -n "${VALUE}" | docker secret create "${NAME}" -
+.PHONY: secret
+
 update:
 .PHONY: update
