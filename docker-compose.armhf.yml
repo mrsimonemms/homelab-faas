@@ -131,7 +131,8 @@ services:
     networks:
       - functions
     environment:
-      - CRON_SCHEDULE="* * * * *"
+      - CRON_SCHEDULE=0 2 * * *
+      - FAAS_URL=http://gateway:8080
     secrets:
       - cron-mileage-freeagent-token
       - cron-mileage-google-calendarId
@@ -150,7 +151,6 @@ services:
       update_config:
         parallelism: 1
         delay: 10s
-
 
   # Functions go here
   debug:
