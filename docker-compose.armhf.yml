@@ -11,7 +11,7 @@ services:
     networks:
       - functions
     deploy:
-      mode: global
+      replicas: 2
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -20,103 +20,123 @@ services:
       update_config:
         parallelism: 1
         delay: 10s
-      placement:
-        constraints: [node.role == manager]
     secrets:
       - openfaas_htpasswd
 
   gateway:
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    image: functions/gateway:0.6.9-armhf
+#    ports:
+#      - 8080:8080
+    image: functions/gateway:0.7.3-armhf
     networks:
       - functions
     environment:
-      read_timeout: 10    # set both here, and on your functions
+      functions_provider_url: "http://faas-swarm:8080/"
+      read_timeout:  10   # set both here, and on your functions
       write_timeout: 10   # set both here, and on your functions
+      dnsrr: "true"  # Temporarily use dnsrr in place of VIP while issue persists on PWD
+      faas_nats_address: "nats"
+      faas_nats_port: 4222
     deploy:
-      mode: global
+      replicas: 2
+      resources:
+        # limits:   # uncomment to enable limits
+        #     memory: 100M
+        reservations:
+          memory: 100M
       restart_policy:
         condition: on-failure
-        delay: 10s
-        max_attempts: 3
-        window: 120s
-      update_config:
-        parallelism: 1
-        delay: 10s
+        delay: 5s
+        max_attempts: 20
+        window: 380s
+
+  # Docker Swarm provider
+  faas-swarm:
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    # ports:
+      # - 8081:8080
+    image:  functions/faas-swarm:0.2.1-armhf
+    networks:
+      - functions
+    environment:
+      read_timeout:  10   # set both here, and on your functions
+      write_timeout: 10   # set both here, and on your functions
+      DOCKER_API_VERSION: "1.30"
+    deploy:
+      replicas: 2
       placement:
-        constraints: [node.role == manager]
+        constraints:
+          - 'node.role == manager'
+          - 'node.platform.os == linux'
+      resources:
+        # limits:   # uncomment to enable limits
+        #     memory: 100M
+        reservations:
+          memory: 100M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 20
+        window: 380s
 
-#  prometheus:
-#    image: alexellis2/prometheus-armhf:1.5.2
-#    volumes:
-#      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-#      - ./prometheus/alert.rules:/etc/prometheus/alert.rules
-#    command: "-config.file=/etc/prometheus/prometheus.yml -storage.local.path=/prometheus -storage.local.memory-chunks=10000 --alertmanager.url=http://alertmanager:9093"
-#    ports:
-#      - 9090:9090
-#    depends_on:
-#      - gateway
-#      - alertmanager
-#    environment:
-#      no_proxy: "gateway"
-#    networks:
-#      - functions
-#    configs:
-#      - source: prometheus-alerts
-#        target: /etc/prometheus/alert.rules
-#      - source: prometheus
-#        target: /etc/prometheus/prometheus.yml
-#    deploy:
-#      replicas: 1
-#      restart_policy:
-#        condition: on-failure
-#        delay: 10s
-#        max_attempts: 3
-#        window: 120s
-#      update_config:
-#        parallelism: 1
-#        delay: 10s
-#      placement:
-#        constraints: [node.role == manager]
+  nats:
+    image: nats-streaming:0.6.0
+    # Uncomment the following port mappings if you wish to expose the
+    # NATS client and/or management ports
+    # ports:
+    #     - 4222:4222
+    #     - 8222:8222
+    command: "--store memory --cluster_id faas-cluster"
+    networks:
+      - functions
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 125M
+        reservations:
+          memory: 50M
+      placement:
+        constraints:
+          - 'node.platform.os == linux'
 
-#  alertmanager:
-#    image: alexellis2/alertmanager-armhf:0.5.1
-#    environment:
-#      no_proxy: "gateway"
-#    volumes:
-#      - ./prometheus/alertmanager.yml:/alertmanager.yml
-#    command:
-#      - '-config.file=/alertmanager.yml'
-#    networks:
-#      - functions
-#    ports:
-#      - 9093:9093
-#    configs:
-#      - source: prometheus-alertmanager
-#        target: /alertmanager.yml
-#    deploy:
-#      replicas: 1
-#      restart_policy:
-#        condition: on-failure
-#        delay: 10s
-#        max_attempts: 3
-#        window: 120s
-#      update_config:
-#        parallelism: 1
-#        delay: 10s
-#      placement:
-#        constraints: [node.role == manager]
+  queue-worker:
+    image: functions/queue-worker:0.4-armhf
+    networks:
+      - functions
+    environment:
+      max_inflight: "1"
+      ack_timeout: "30s"    # Max duration of any async task / request
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 50M
+        reservations:
+          memory: 20M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 20
+        window: 380s
+      placement:
+        constraints:
+          - 'node.platform.os == linux'
+
+  # Crons go here
 
   # Functions go here
-  distance-finder:
-    image: riggerthegeek/function-distance-finder:latest
+  debug:
+    image: functions/nodeinfo:latest-armhf
     labels:
       function: "true"
     depends_on:
       - gateway
     networks:
       - functions
+    environment:
+      no_proxy: "gateway"
+      https_proxy: $https_proxy
     deploy:
       replicas: 2
       restart_policy:
@@ -128,18 +148,152 @@ services:
         parallelism: 1
         delay: 10s
 
-configs:
-  prometheus-alerts:
-    file: ./prometheus/alert.rules
-  prometheus-alertmanager:
-    file: ./prometheus/alertmanager.yml
-  prometheus:
-    file: ./prometheus/prometheus.yml
+  distance-finder:
+    image: riggerthegeek/function-distance-finder:latest
+    labels:
+      function: "true"
+    depends_on:
+      - gateway
+    networks:
+      - functions
+    environment:
+      no_proxy: "gateway"
+      https_proxy: $https_proxy
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 10s
+
+  freeagent:
+    image: riggerthegeek/function-freeagent:latest
+    labels:
+      function: "true"
+    depends_on:
+      - gateway
+    networks:
+      - functions
+    environment:
+      BASE_URL: https://api.freeagent.com
+      no_proxy: "gateway"
+      https_proxy: $https_proxy
+    secrets:
+      - freeagent_client_id
+      - freeagent_client_secret
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 10s
+
+  google-calendar:
+    image: riggerthegeek/function-google-calendar:latest
+    labels:
+      function: "true"
+    depends_on:
+      - gateway
+    networks:
+      - functions
+    environment:
+      no_proxy: "gateway"
+      https_proxy: $https_proxy
+    secrets:
+      - google_calendar_client_id
+      - google_calendar_client_secret
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 10s
+
+#  get-iplayer:
+#    image: riggerthegeek/function-get-iplayer:latest
+#    labels:
+#      function: "true"
+#    depends_on:
+#      - gateway
+#    networks:
+#      - functions
+#    environment:
+#      no_proxy: "gateway"
+#      https_proxy: $https_proxy
+#    deploy:
+#      replicas: 2
+#      restart_policy:
+#        condition: on-failure
+#        delay: 10s
+#        max_attempts: 3
+#        window: 120s
+#      update_config:
+#        parallelism: 1
+#        delay: 10s
+#    secrets:
+#      - dropboxKey
+
+#    configs:
+#      - source: prometheus-alerts
+#        target: /etc/prometheus/alert.rules
+#      - source: prometheus
+#        target: /etc/prometheus/prometheus.yml
+
+#configs:
+#  prometheus-alerts:
+#    file: ./prometheus/alert.rules
+#  prometheus-alertmanager:
+#    file: ./prometheus/alertmanager.yml
+#  prometheus:
+#    file: ./prometheus/prometheus.yml
 
 networks:
   functions:
     driver: overlay
+    attachable: true
+    labels:
+      - "openfaas=true"
 
 secrets:
+  cron-mileage-faas-password:
+    external: true
+  cron-mileage-faas-username:
+    external: true
+  cron-mileage-freeagent-token:
+    external: true
+  cron-mileage-google-calendarId:
+    external: true
+  cron-mileage-google-token:
+    external: true
+  cron-mileage-mailgun-domain:
+    external: true
+  cron-mileage-mailgun-key:
+    external: true
+  cron-mileage-notify-from:
+    external: true
+  cron-mileage-notify-to:
+    external: true
+  dropboxKey:
+    external: true
+  freeagent_client_id:
+    external: true
+  freeagent_client_secret:
+    external: true
+  google_calendar_client_id:
+    external: true
+  google_calendar_client_secret:
+    external: true
   openfaas_htpasswd:
     external: true
