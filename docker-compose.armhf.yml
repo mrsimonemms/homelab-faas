@@ -124,6 +124,33 @@ services:
           - 'node.platform.os == linux'
 
   # Crons go here
+  cron-mileage:
+    image: riggerthegeek/cron-mileage:latest
+    depends_on:
+      - gateway
+    networks:
+      - functions
+    environment:
+      - CRON_SCHEDULE="* * * * *"
+    secrets:
+      - cron-mileage-freeagent-token
+      - cron-mileage-google-calendarId
+      - cron-mileage-google-token
+      - cron-mileage-mailgun-domain
+      - cron-mileage-mailgun-key
+      - cron-mileage-notify-from
+      - cron-mileage-notify-to
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 10s
+
 
   # Functions go here
   debug:
@@ -267,10 +294,6 @@ networks:
       - "openfaas=true"
 
 secrets:
-  cron-mileage-faas-password:
-    external: true
-  cron-mileage-faas-username:
-    external: true
   cron-mileage-freeagent-token:
     external: true
   cron-mileage-google-calendarId:
