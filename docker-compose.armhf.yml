@@ -131,7 +131,7 @@ services:
     networks:
       - functions
     environment:
-      - CRON_SCHEDULE=0 2 * * *
+      - CRON_SCHEDULE=0 * * * *
       - FAAS_URL=http://gateway:8080
     secrets:
       - cron-mileage-freeagent-token
@@ -141,6 +141,7 @@ services:
       - cron-mileage-mailgun-key
       - cron-mileage-notify-from
       - cron-mileage-notify-to
+      - cron-mileage-snitch-url
     deploy:
       replicas: 1
       restart_policy:
@@ -307,6 +308,8 @@ secrets:
   cron-mileage-notify-from:
     external: true
   cron-mileage-notify-to:
+    external: true
+  cron-mileage-snitch-url:
     external: true
   dropboxKey:
     external: true
