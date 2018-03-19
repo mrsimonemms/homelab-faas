@@ -11,7 +11,7 @@ services:
     networks:
       - functions
     deploy:
-      replicas: 2
+      replicas: 1
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -37,7 +37,7 @@ services:
       faas_nats_address: "nats"
       faas_nats_port: 4222
     deploy:
-      replicas: 2
+      replicas: 1
       resources:
         # limits:   # uncomment to enable limits
         #     memory: 100M
@@ -63,7 +63,7 @@ services:
       write_timeout: 10   # set both here, and on your functions
       DOCKER_API_VERSION: "1.30"
     deploy:
-      replicas: 2
+      replicas: 1
       placement:
         constraints:
           - 'node.role == manager'
@@ -90,7 +90,7 @@ services:
     networks:
       - functions
     deploy:
-      replicas: 2
+      replicas: 1
       resources:
         limits:
           memory: 125M
@@ -108,7 +108,7 @@ services:
       max_inflight: "1"
       ack_timeout: "30s"    # Max duration of any async task / request
     deploy:
-      replicas: 2
+      replicas: 1
       resources:
         limits:
           memory: 50M
@@ -166,7 +166,7 @@ services:
       no_proxy: "gateway"
       https_proxy: $https_proxy
     deploy:
-      replicas: 2
+      replicas: 1
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -188,7 +188,7 @@ services:
       no_proxy: "gateway"
       https_proxy: $https_proxy
     deploy:
-      replicas: 2
+      replicas: 1
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -214,7 +214,7 @@ services:
       - freeagent_client_id
       - freeagent_client_secret
     deploy:
-      replicas: 2
+      replicas: 1
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -239,7 +239,7 @@ services:
       - google_calendar_client_id
       - google_calendar_client_secret
     deploy:
-      replicas: 2
+      replicas: 1
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -261,7 +261,7 @@ services:
 #      no_proxy: "gateway"
 #      https_proxy: $https_proxy
 #    deploy:
-#      replicas: 2
+#      replicas: 1
 #      restart_policy:
 #        condition: on-failure
 #        delay: 10s
