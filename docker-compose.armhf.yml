@@ -4,6 +4,7 @@ services:
   # Core API services are pinned, HA is provided for functions.
   gwnginx:
     image: riggerthegeek/faas-password-gateway:latest
+    logging: *default-logging
     ports:
       - 8080:8080
     depends_on:
@@ -27,6 +28,7 @@ services:
 #    ports:
 #      - 8080:8080
     image: functions/gateway:0.7.3-armhf
+    logging: *default-logging
     networks:
       - functions
     environment:
@@ -51,6 +53,7 @@ services:
 
   # Docker Swarm provider
   faas-swarm:
+    logging: *default-logging
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     # ports:
@@ -66,8 +69,8 @@ services:
       replicas: 2
       placement:
         constraints:
-          - 'node.role == manager'
-          - 'node.platform.os == linux'
+          - "node.role == manager"
+          - "node.platform.os == linux"
       resources:
         # limits:   # uncomment to enable limits
         #     memory: 100M
@@ -81,6 +84,7 @@ services:
 
   nats:
     image: nats-streaming:0.6.0
+    logging: *default-logging
     # Uncomment the following port mappings if you wish to expose the
     # NATS client and/or management ports
     # ports:
@@ -98,10 +102,11 @@ services:
           memory: 50M
       placement:
         constraints:
-          - 'node.platform.os == linux'
+          - "node.platform.os == linux"
 
   queue-worker:
     image: functions/queue-worker:0.4-armhf
+    logging: *default-logging
     networks:
       - functions
     environment:
@@ -121,11 +126,12 @@ services:
         window: 380s
       placement:
         constraints:
-          - 'node.platform.os == linux'
+          - "node.platform.os == linux"
 
   # Crons go here
   cron-mileage:
     image: riggerthegeek/cron-mileage:latest
+    logging: *default-logging
     depends_on:
       - gateway
     networks:
@@ -156,6 +162,7 @@ services:
   # Functions go here
   debug:
     image: functions/nodeinfo:latest-armhf
+    logging: *default-logging
     labels:
       function: "true"
     depends_on:
@@ -180,6 +187,7 @@ services:
 
   distance-finder:
     image: riggerthegeek/function-distance-finder:latest
+    logging: *default-logging
     labels:
       function: "true"
     depends_on:
@@ -204,6 +212,7 @@ services:
 
   freeagent:
     image: riggerthegeek/function-freeagent:latest
+    logging: *default-logging
     labels:
       function: "true"
     depends_on:
@@ -232,6 +241,7 @@ services:
 
   google-calendar:
     image: riggerthegeek/function-google-calendar:latest
+    logging: *default-logging
     labels:
       function: "true"
     depends_on:
@@ -301,6 +311,13 @@ networks:
     attachable: true
     labels:
       - "openfaas=true"
+
+x-logging:
+  &default-logging
+  driver: syslog
+  options:
+    syslog-address: ${DOCKER_LOG_ADDRESS}
+    tag: "{{.Name}}/{{.ID}}"
 
 secrets:
   cron-mileage-freeagent-token:
