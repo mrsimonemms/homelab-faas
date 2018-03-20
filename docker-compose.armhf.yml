@@ -11,7 +11,7 @@ services:
     networks:
       - functions
     deploy:
-      replicas: 1
+      replicas: 2
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -37,7 +37,7 @@ services:
       faas_nats_address: "nats"
       faas_nats_port: 4222
     deploy:
-      replicas: 1
+      replicas: 2
       resources:
         # limits:   # uncomment to enable limits
         #     memory: 100M
@@ -63,7 +63,7 @@ services:
       write_timeout: 30   # set both here, and on your functions
       DOCKER_API_VERSION: "1.30"
     deploy:
-      replicas: 1
+      replicas: 2
       placement:
         constraints:
           - 'node.role == manager'
@@ -168,7 +168,7 @@ services:
       read_timeout:  30   # set both here, and on your functions
       write_timeout: 30   # set both here, and on your functions
     deploy:
-      replicas: 1
+      replicas: 2
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -192,7 +192,7 @@ services:
       read_timeout:  30   # set both here, and on your functions
       write_timeout: 30   # set both here, and on your functions
     deploy:
-      replicas: 1
+      replicas: 3
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -220,7 +220,7 @@ services:
       - freeagent_client_id
       - freeagent_client_secret
     deploy:
-      replicas: 1
+      replicas: 2
       restart_policy:
         condition: on-failure
         delay: 10s
@@ -247,7 +247,7 @@ services:
       - google_calendar_client_id
       - google_calendar_client_secret
     deploy:
-      replicas: 1
+      replicas: 2
       restart_policy:
         condition: on-failure
         delay: 10s
