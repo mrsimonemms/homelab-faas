@@ -1,12 +1,40 @@
 version: "3.4"
 services:
 
+  caddy:
+    image: riggerthegeek/caddy-proxy:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - gwnginx
+    networks:
+      - functions
+    environment:
+      DOMAIN_NAME: simonemms.co.uk
+      EMAIL_ADDRESS: simon@simonemms.com
+      PROXY_URL: gwnginx:8080
+    volumes:
+      - type: volume
+        source: certs
+        target: /opt/certs
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 10s
+
   # Core API services are pinned, HA is provided for functions.
   gwnginx:
     image: riggerthegeek/faas-password-gateway:latest
     logging: *default-logging
-    ports:
-      - 8080:8080
+#    ports:
+#      - 8080:8080
     depends_on:
       - gateway
     networks:
@@ -304,6 +332,9 @@ services:
 #    file: ./prometheus/alertmanager.yml
 #  prometheus:
 #    file: ./prometheus/prometheus.yml
+
+volumes:
+  certs:
 
 networks:
   functions:
