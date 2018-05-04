@@ -408,3 +408,7 @@ secrets:
     external: true
   openfaas_htpasswd:
     external: true
+  starling_client_id:
+    external: true
+  starling_client_secret:
+    external: true
