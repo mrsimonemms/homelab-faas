@@ -2,7 +2,7 @@ version: "3.4"
 services:
 
   caddy:
-    image: riggerthegeek/caddy-proxy:latest
+    image: riggerthegeek/caddy-proxy:0.1.0
     ports:
       - "80:80"
       - "443:443"
@@ -31,7 +31,7 @@ services:
 
   # Core API services are pinned, HA is provided for functions.
   gwnginx:
-    image: riggerthegeek/faas-password-gateway:latest
+    image: riggerthegeek/faas-password-gateway:0.1
     logging: *default-logging
 #    ports:
 #      - 8080:8080
@@ -158,7 +158,7 @@ services:
 
   # Crons go here
   cron-mileage:
-    image: riggerthegeek/cron-mileage:latest
+    image: riggerthegeek/cron-mileage:0.0.0
     logging: *default-logging
     depends_on:
       - gateway
@@ -214,7 +214,7 @@ services:
         delay: 10s
 
   distance-finder:
-    image: riggerthegeek/function-distance-finder:latest
+    image: riggerthegeek/function-distance-finder:0.1.0
     logging: *default-logging
     labels:
       function: "true"
@@ -239,7 +239,7 @@ services:
         delay: 10s
 
   freeagent:
-    image: riggerthegeek/function-freeagent:latest
+    image: riggerthegeek/function-freeagent:0.1.2
     logging: *default-logging
     labels:
       function: "true"
@@ -268,7 +268,7 @@ services:
         delay: 10s
 
   google-calendar:
-    image: riggerthegeek/function-google-calendar:latest
+    image: riggerthegeek/function-google-calendar:0.1.4
     logging: *default-logging
     labels:
       function: "true"
