@@ -239,7 +239,7 @@ services:
         delay: 10s
 
   freeagent:
-    image: riggerthegeek/function-freeagent:0.1.2
+    image: riggerthegeek/function-freeagent:0.2.0
     logging: *default-logging
     labels:
       function: "true"
