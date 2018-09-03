@@ -33,8 +33,8 @@ services:
   gwnginx:
     image: riggerthegeek/faas-password-gateway:0.1
     logging: *default-logging
-#    ports:
-#      - 8080:8080
+    ports:
+      - 8080:8080
     depends_on:
       - gateway
     networks:
@@ -296,7 +296,7 @@ services:
         delay: 10s
 
   starling:
-    image: riggerthegeek/function-starling-bank:0.1.0
+    image: riggerthegeek/function-starling-bank:0.1.1
     logging: *default-logging
     labels:
       function: "true"
@@ -305,7 +305,8 @@ services:
     networks:
       - functions
     environment:
-      BASE_URL: https://api-sandbox.starlingbank.com
+      BASE_URL: https://api.starlingbank.com
+      EXCHANGE_TOKENS: "false" # We're using a personal access token
       no_proxy: "gateway"
       https_proxy: $https_proxy
       read_timeout:  30   # set both here, and on your functions
