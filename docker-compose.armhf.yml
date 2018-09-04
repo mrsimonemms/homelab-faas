@@ -430,6 +430,26 @@ secrets:
     external: true
   cron-mileage-snitch-url:
     external: true
+  cron-starling-faas-username:
+    external: true
+  cron-starling-faas-password:
+    external: true
+  cron-starling-freeagent-account-id:
+    external: true
+  cron-starling-freeagent-token:
+    external: true
+  cron-starling-mailgun-domain:
+    external: true
+  cron-starling-mailgun-key:
+    external: true
+  cron-starling-notify-from:
+    external: true
+  cron-starling-snitch-url:
+    external: true
+  cron-starling-notify-to:
+    external: true
+  cron-starling-token:
+    external: true
   dropboxKey:
     external: true
   freeagent_client_id:
