@@ -20,6 +20,16 @@ destroy:
 	docker stack rm ${STACK}
 .PHONY: destroy
 
+destroy-secret:
+	docker secret rm ${NAME}
+.PHONY: destroy-secret
+
+import-secrets:
+	rm -f secrets.yml
+	gpg -d secrets.yml.gpg > secrets.yml
+	python scripts/importSecrets.py
+.PHONY: import-secrets
+
 password:
 	docker run -it --rm \
 		-e USERNAME=${WEB_USER} \
