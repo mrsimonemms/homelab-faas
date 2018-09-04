@@ -28,6 +28,7 @@ import-secrets:
 	rm -f secrets.yml
 	gpg -d secrets.yml.gpg > secrets.yml
 	python scripts/importSecrets.py
+	rm -f secrets.yml
 .PHONY: import-secrets
 
 password:
