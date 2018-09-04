@@ -6,3 +6,4 @@ Thumbs.db
 /build
 node_modules
 htpasswd
+secrets.yml

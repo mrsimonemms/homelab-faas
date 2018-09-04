@@ -199,8 +199,6 @@ services:
     - CRON_SCHEDULE=0 * * * *
     - FAAS_URL=http://gateway:8080
     secrets:
-    - cron-starling-faas-username
-    - cron-starling-faas-password
     - cron-starling-freeagent-account-id
     - cron-starling-freeagent-token
     - cron-starling-mailgun-domain
@@ -449,8 +447,6 @@ secrets:
   cron-starling-notify-to:
     external: true
   cron-starling-token:
-    external: true
-  dropboxKey:
     external: true
   freeagent_client_id:
     external: true
