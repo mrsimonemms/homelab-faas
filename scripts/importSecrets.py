@@ -11,8 +11,8 @@ for name in doc:
 
   print(str(name) + "=" + str(value))
 
-  os.environ["NAME"] = str(name)
-  os.environ["VALUE"] = str(value)
+  os.environ["NAME"] = str(name).replace("$", "\$$")
+  os.environ["VALUE"] = str(value).replace("$", "\$$")
 
   call([
     "make",
