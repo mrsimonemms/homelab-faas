@@ -188,35 +188,35 @@ services:
         delay: 10s
 
 
-  cron-starling:
-    image: riggerthegeek/cron-starling:0.0.0
-    logging: *default-logging
-    depends_on:
-    - gateway
-    networks:
-    - functions
-    environment:
-    - CRON_SCHEDULE=0 * * * *
-    - FAAS_URL=http://gateway:8080
-    secrets:
-    - cron-starling-freeagent-account-id
-    - cron-starling-freeagent-token
-    - cron-starling-mailgun-domain
-    - cron-starling-mailgun-key
-    - cron-starling-notify-from
-    - cron-starling-snitch-url
-    - cron-starling-notify-to
-    - cron-starling-token
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-        delay: 10s
-        max_attempts: 3
-        window: 120s
-      update_config:
-        parallelism: 1
-        delay: 10s
+  # cron-starling:
+  #   image: riggerthegeek/cron-starling:0.0.0
+  #   logging: *default-logging
+  #   depends_on:
+  #   - gateway
+  #   networks:
+  #   - functions
+  #   environment:
+  #   - CRON_SCHEDULE=0 * * * *
+  #   - FAAS_URL=http://gateway:8080
+  #   secrets:
+  #   - cron-starling-freeagent-account-id
+  #   - cron-starling-freeagent-token
+  #   - cron-starling-mailgun-domain
+  #   - cron-starling-mailgun-key
+  #   - cron-starling-notify-from
+  #   - cron-starling-snitch-url
+  #   - cron-starling-notify-to
+  #   - cron-starling-token
+  #   deploy:
+  #     replicas: 1
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 10s
+  #       max_attempts: 3
+  #       window: 120s
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 10s
 
   # Functions go here
   debug:
